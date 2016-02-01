@@ -1,0 +1,116 @@
+# Main Config file
+# starting simple and will grow this over time.
+# Global Configurations to be used by any/all tasks
+templates:
+
+  # the most generic of configurations that are "IMPLICITLY"
+  global:
+    # keep everything in one config for now
+    deluge:
+      host: {{ ansible_fqdn }}
+      port: {{ deluge_port }}
+      username: {{ ansible_ssh_user }}
+      password: {{ deluge_password }}
+    # Make there's 50GB free before adding more downloads
+    free_space:
+      path: {{ ansible_env.HOME }}
+      space: 50000
+    # Make sure all filenames are Windows safe (for samba)
+    pathscrub: windows
+    # Most of these are the results of problem torrents I kept seeing still pop up, so I wholesale blocked them
+    # RegExr (http://www.gskinner.com/RegExr/) is a great tool for testing regexes
+    regexp:
+      reject:
+        - (s|d)ub(s|bed)?\b: {from: title}                    # Block any subbed/dubbed/etc videos
+        - \b(duo|tri|quadri|tetra|penta)logy\b: {from: title} # Block series, only accept one at a time
+        - \b3-?D\b: {from: title}                             # I don't have any 3D displays
+        - \btrailer\b: {from: title}                          # I've gotten a few trailers that matched as movies. VERY annoying
+        - \bR5\b: {from: title}                               # The following are poor quality types that somehow got through the quality
+        - \bWEBSCR\b: {from: title}                           # features usually due to the title including a keyword like "720p" as well
+        - \bscreener\b: {from: title}
+        - \bTS\b: {from: title}
+        - \bCam\b: {from: title}
+        - '{C_P}': {from: title}                              # The following are groups with poor quality releases
+        - TrTd TeaM: {from: title}
+        - \[TNTVillage\]: {from: title}
+        - \[facepalm\]: {from: title}
+    # Filter by filenames. Allow multiple video types and rar packs (but note if there is just a
+    # single .rar file it won't be accepted)
+    content_filter:
+      require:
+        - '*.avi'
+        - '*.mkv'
+        - '*.mpg'
+        - '*.mp4'
+        - '*.r0*'
+        - '*.part0*'
+      reject:
+        - 'password.txt'
+        - '*.wmv'
+    # Limit the frequency of requests to domains so they don't complain about
+    # using a bot
+    domain_delay:
+      torrenting.com: 15 seconds
+    # Ignore torrents with only magnet links, doesn't work with content_filters
+    magnets: no
+
+  # this is where we define all the TV specific settings
+  tv-global:
+    # Impose reasonable size constraints
+    content_size:
+      max: 5000
+      min: 20
+    # Prevent from downloading shows that were aquired manually
+    # or are currently downloading
+    exists_series:
+      - "{{ deluge_datadir }}/inprogress/"
+      - "{{ deluge_datadir }}/completed/"
+    # Look up info on TheTVDB.com to fill in extra info
+    thetvdb_lookup: yes
+    # Add accepted entries to Deluge and make sure they end up in the correct
+    # folder with a nice name
+    set:
+      path: "{{ deluge_datadir }}/inprogress/"
+      movedone: "{{ deluge_datadir }}/completed/"
+      queuetotop: yes
+      label: tvshows-episode
+
+  # now we are going to get specific about the TV Shows we care about
+  tv-my_shows:
+    configure_series:
+      settings:
+        # wait up to 2 days to get the HDTV.x264 version; if not found within
+        # the timeframe then go after HDTV.xvid
+        # I only use regular TV Shows that have Season+Episode in them
+        # and I want to allow propers for up to 2 days to avoid dealing
+        # with bad versions.
+        timeframe: 2 days
+        target: hdtv <720p h264
+        quality: hdtv <720p h264|xvid
+        identified_by: ep
+        propers: 2 days
+      from:
+        # leverage cloud tracking service Trakt.tv
+        trakt_list:
+          username: {{ trakt_user }}
+          account: {{ trakt_account }}
+          list: currentshows
+          type: shows
+          strip_dates: yes
+
+  trakt_seen_series:
+    trakt_add:
+      username: {{ trakt_user }}
+      account: {{ trakt_account }}
+      list: collection
+
+# now we are ready to execute some tasks
+tasks:
+
+  private-site:
+    priority: 10
+    rss: { url: 'http://www.torrenting.com/get_rss.php?feed=direct&user={{ torrenting_user }}&cat=4&passkey={{ torrenting_password }}', silent: yes }
+    template:
+      - tv-global
+      - tv-my_shows
+      - trakt_seen_series

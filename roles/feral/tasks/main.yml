@@ -1,0 +1,89 @@
+---
+- name: Set up authorized_keys for the deploy user
+  authorized_key: user="{{ ansible_ssh_user }}" key="{{ item }}"
+  with_file:
+    - "{{ secured_src_dir }}/public-key.pem"
+  tags:
+    - feral
+
+- name: Create public_html directory
+  file:
+    path: "~/www/{{ ansible_ssh_user }}.{{ ansible_fqdn }}/public_html"
+    mode: 0644
+    recurse: yes
+    state: directory
+  tags:
+    - feral
+
+- name: Copy robots.txt
+  copy:
+    src: robots.txt
+    dest: "~/www/{{ ansible_ssh_user }}.{{ ansible_fqdn }}/public_html/robots.txt"
+    mode: 0644
+    state: file
+  tags:
+    - feral
+
+- name: Convert from apache to nginx
+  file:
+    path: "~/.nginx"
+    mode: 0644
+    state: directory
+  tags:
+    - feral
+
+- name: Copy dotfiles
+  copy:
+    src: "{{ item }}"
+    dest: "~/.{{ item }}"
+    mode: 0644
+    state: file
+  with_items:
+    - bash_aliases
+    - screenrc
+    - vimrc
+  tags:
+    - feral
+
+- name: Copy executable dotfiles
+  copy:
+    src: "{{ item }}"
+    dest: "~/.{{ item }}"
+    mode: 0755
+    state: file
+  with_items:
+    - bashrc
+    - profile
+  tags:
+    - feral
+
+- name: create torrent directories
+  file:
+    path: "{{ deluge_datadir }}/{{ item }}"
+    mode: 0644
+    recurse: yes
+    state: directory
+  with_items:
+    - completed
+    - inprogress
+    - seedLT
+    - toSync
+    - upload
+  tags:
+    - feral
+
+- name: Install virtualenv module
+  pip:
+    name: virtualenv
+    state: latest
+    extra_args: "--user"
+  tags:
+    - feral
+
+# get deluge config file (~/.config/deluge/core.conf) and
+# read the 'daemon_port' and
+# save as 'deluge_port'
+
+# get deluge auth file (~/.config/deluge/auth) and
+# read the password for username 'ansible_ssh_user' and
+# save as 'deluge_password'

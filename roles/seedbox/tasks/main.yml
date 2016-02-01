@@ -1,0 +1,59 @@
+---
+- name: Install SeedboxManager
+  pip:
+    name: SeedboxManager
+    state: latest
+    virtualenv: "~/seedbox"
+    virtualenv_command: "~/.local/bin/virtualenv"
+  tags:
+    - seedbox
+
+- name: Create .seedbox runtime environment
+  file:
+    path: "~/.seedbox/{{ item }}"
+    mode: 0700
+    recurse: yes
+    state: directory
+  with_items:
+    - sync_out
+    - sync_err
+  tags:
+    - seedbox
+
+- name: Create .sshkeys for file sync
+  file:
+    path: "~/.sshkeys"
+    mode: 0700
+    state: directory
+  tags:
+    - seedbox
+
+- name: Copy file transfer private ssh keys
+  copy:
+    src: "{{ secured_src_dir }}/{{ item }}"
+    dest: "~/.sshkeys/{{ item }}"
+    mode: 0400
+    state: file
+  with_items:
+    - diskstation-rsync-key
+  tags:
+    - seedbox
+
+- name: Copy file transfer public ssh keys
+  copy:
+    src: "{{ secured_src_dir }}/{{ item }}"
+    dest: "~/.sshkeys/{{ item }}"
+    mode: 0644
+    state: file
+  with_items:
+    - diskstation-rsync-key.pub
+  tags:
+    - seedbox
+
+- name: Sync seedbox manager cache db
+  synchronize:
+    mode: push
+    src: "~/.seedbox/torrent.db"
+    dest: "~/.seedbox/torrent.db"
+  tags:
+    - seedbox

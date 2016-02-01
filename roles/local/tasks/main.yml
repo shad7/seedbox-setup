@@ -1,0 +1,92 @@
+---
+- name: check if private key exists
+  file:
+    path: "{{ secured_src_dir }}/private-key.pem"
+    mode: "u+rw,g-rwx,o-rwx"
+    state: file
+  register: key_exists
+  ignore_errors: true
+  changed_when: key_exists|failed
+
+- name: Decrypt private key
+  no_log: True
+  command: openssl aes-256-cbc -salt -a -d -in "{{ secured_src_dir }}/encrypted-private-key.pem"
+           -out "{{ secured_src_dir }}/private-key.pem" -k "{{ encryption_key_password }}"
+           creates="{{ secured_src_dir }}/private-key.pem"
+  when: key_exists.changed
+
+- name: Set file permissions on private key
+  file:
+    path: "{{ secured_src_dir }}/private-key.pem"
+    mode: "u+rw,g-rwx,o-rwx"
+    state: file
+  when: key_exists.changed
+
+- name: check if public key exists
+  file:
+    path: "{{ secured_src_dir }}/public-key.pem"
+    mode: 0644
+    state: file
+  register: key_exists
+  ignore_errors: true
+  changed_when: key_exists|failed
+
+- name: Decrypt public key
+  no_log: True
+  command: openssl aes-256-cbc -salt -a -d -in "{{ secured_src_dir }}/encrypted-public-key.pem"
+           -out "{{ secured_src_dir }}/public-key.pem" -k "{{ encryption_key_password }}"
+           creates="{{ secured_src_dir }}/public-key.pem"
+  when: key_exists.changed
+
+- name: Set file permissions on public key
+  file:
+    path: "{{ secured_src_dir }}/public-key.pem"
+    mode: 0644
+    state: file
+  when: key_exists.changed
+
+- name: check if file transfer private key exists
+  file:
+    path: "{{ secured_src_dir }}/diskstation-rsync-key"
+    mode: 0600
+    state: file
+  register: key_exists
+  ignore_errors: true
+  changed_when: key_exists|failed
+
+- name: Decrypt file transfer private key
+  no_log: True
+  command: openssl aes-256-cbc -salt -a -d -in "{{ secured_src_dir }}/encrypted-diskstation-rsync-key"
+           -out "{{ secured_src_dir }}/diskstation-rsync-key" -k "{{ encryption_key_password }}"
+           creates="{{ secured_src_dir }}/diskstation-rsync-key"
+  when: key_exists.changed
+
+- name: Set file permissions on file transfer private key
+  file:
+    path: "{{ secured_src_dir }}/diskstation-rsync-key"
+    mode: 0600
+    state: file
+  when: key_exists.changed
+
+- name: check if file transfer public key exists
+  file:
+    path: "{{ secured_src_dir }}/diskstation-rsync-key.pub"
+    mode: 0644
+    state: file
+  register: key_exists
+  ignore_errors: true
+  changed_when: key_exists|failed
+
+- name: Decrypt file transfer public key
+  no_log: True
+  command: openssl aes-256-cbc -salt -a -d -in "{{ secured_src_dir }}/encrypted-diskstation-rsync-key.pub"
+           -out "{{ secured_src_dir }}/diskstation-rsync-key.pub" -k "{{ encryption_key_password }}"
+           creates="{{ secured_src_dir }}/diskstation-rsync-key.pub"
+  when: key_exists.changed
+
+- name: Set file permissions on file transfer public key
+  file:
+    path: "{{ secured_src_dir }}/diskstation-rsync-key.pub"
+    mode: 0644
+    state: file
+  when: key_exists.changed

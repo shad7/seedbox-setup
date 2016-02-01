@@ -1,0 +1,225 @@
+# ~/.bashrc: executed by bash(1) for non-login shells.
+# see /usr/share/doc/bash/examples/startup-files (in the package bash-doc)
+# for examples
+
+# If not running interactively, don't do anything
+[ -z "$PS1" ] && return
+
+# don't put duplicate lines in the history. See bash(1) for more options
+# don't overwrite GNU Midnight Commander's setting of `ignorespace'.
+export HISTCONTROL=$HISTCONTROL${HISTCONTROL+,}ignoredups
+# ... or force ignoredups and ignorespace
+export HISTCONTROL=ignoreboth
+
+# append to the history file, don't overwrite it
+shopt -s histappend
+
+# for setting history length see HISTSIZE and HISTFILESIZE in bash(1)
+
+# check the window size after each command and, if necessary,
+# update the values of LINES and COLUMNS.
+shopt -s checkwinsize
+
+# set variable identifying the chroot you work in (used in the prompt below)
+if [ -z "$debian_chroot" ] && [ -r /etc/debian_chroot ]; then
+    debian_chroot=$(cat /etc/debian_chroot)
+fi
+
+# Alias definitions.
+if [ -f ~/.bash_aliases ]; then
+    . ~/.bash_aliases
+fi
+
+if [ -d ~/bin ] ; then
+	PATH=~/bin:"${PATH}"
+fi
+
+# enable programmable completion features (you don't need to enable
+# this, if it's already enabled in /etc/bash.bashrc and /etc/profile
+# sources /etc/bash.bashrc).
+if [ -f /etc/bash_completion ]; then
+    . /etc/bash_completion
+fi
+
+function ps1_context() {
+    # For any of these bits of context that exist, display them and append
+    # a space.
+    virtualenv=`basename "$VIRTUAL_ENV"`
+    for v in "$debian_chroot" "$virtualenv" "$PS1_CONTEXT"; do
+        echo -n "${v:+$v }"
+    done
+}
+context="$(ps1_context)"
+
+function cyan_red_prompt() {
+        local CYAN="\[\033[0;36m\]"
+        local GRAY="\[\033[0;37m\]"
+        local RED="\[\033[0;31m\]"
+        local BLACK="\[\033[0m\]"
+        local GREEN="\[\033[1;32m\]"
+        local YELLOW="\[\033[0;33m\]"
+
+        if [ -z "$context" ]; then
+            PS1="${GREEN}[\h ${RED}\w${GREEN}] ${BLACK}"
+        else
+            PS1="${GREEN}[${YELLOW}${context}@${GREEN}\h ${RED}\w${GREEN}] ${BLACK}"
+        fi
+}
+cyan_red_prompt
+
+
+export EDITOR=`which vi`
+export TZ=/usr/share/zoneinfo/America/New_York
+
+stty start undef
+stty stop undef
+
+#############################################################################
+# Color definitions (taken from Color Bash Prompt HowTo).
+# Some colors might look different of some terminals.
+# For example, I see 'Bold Red' as 'orange' on my screen,
+# hence the 'Green' 'BRed' 'Red' sequence I often use in my prompt.
+
+# Normal Colors
+Black='\e[0;30m'        # Black
+Red='\e[0;31m'          # Red
+Green='\e[0;32m'        # Green
+Yellow='\e[0;33m'       # Yellow
+Blue='\e[0;34m'         # Blue
+Purple='\e[0;35m'       # Purple
+Cyan='\e[0;36m'         # Cyan
+White='\e[0;37m'        # White
+
+# Bold
+BBlack='\e[1;30m'       # Black
+BRed='\e[1;31m'         # Red
+BGreen='\e[1;32m'       # Green
+BYellow='\e[1;33m'      # Yellow
+BBlue='\e[1;34m'        # Blue
+BPurple='\e[1;35m'      # Purple
+BCyan='\e[1;36m'        # Cyan
+BWhite='\e[1;37m'       # White
+
+# Background
+On_Black='\e[40m'       # Black
+On_Red='\e[41m'         # Red
+On_Green='\e[42m'       # Green
+On_Yellow='\e[43m'      # Yellow
+On_Blue='\e[44m'        # Blue
+On_Purple='\e[45m'      # Purple
+On_Cyan='\e[46m'        # Cyan
+On_White='\e[47m'       # White
+
+NC="\e[m"               # Color Reset
+
+
+function my_ps() {
+  ps $@ -H -u $USER -o pid,%cpu,%mem,time,command ;
+}
+
+function pp() {
+  my_ps f | awk '!/awk/ && $0~var' var=${1:-".*"} ;
+}
+
+# kill by process name
+function killps() {
+  local pid pname sig="-TERM"   # default signal
+
+  if [ "$#" -lt 1 ] || [ "$#" -gt 2 ]; then
+    echo "Usage: killps [-SIGNAL] pattern"
+    return;
+  fi
+
+  if [ $# = 2 ]; then sig=$1 ; fi
+
+  for pid in $(my_ps| awk '!/awk/ && $0~pat { print $1 }' pat=${!#} )
+  do
+    pname=$(my_ps | awk '$1~var { print $5 }' var=$pid )
+    if ask "Kill process $pid <$pname> with signal $sig?"
+      then kill $sig $pid
+    fi
+  done
+}
+
+# Pretty-print of 'df' output. Inspired by 'dfc' utility
+function mydf() {
+
+  for fs ; do
+
+    if [ ! -d $fs ]
+    then
+      echo -e $fs" :No such file or directory" ; continue
+    fi
+
+    local info=( $(command df -P $fs | awk 'END{ print $2,$3,$5 }') )
+    local free=( $(command df -Pkh $fs | awk 'END{ print $4 }') )
+    local nbstars=$(( 20 * ${info[1]} / ${info[0]} ))
+    local out="["
+
+    for ((j=0;j<20;j++)); do
+      if [ ${j} -lt ${nbstars} ]; then
+         out=$out"*"
+      else
+         out=$out"-"
+      fi
+    done
+
+    out=${info[2]}" "$out"] ("$free" free on "$fs")"
+    echo -e $out
+
+  done
+}
+
+# Pretty-print of 'du' output. Inspired by 'dfc' utility
+function mydu() {
+
+  for fs ; do
+
+    if [ ! -d $fs ]
+    then
+      echo -e $fs" :No such file or directory" ; continue
+    fi
+
+    local slotsize=1000000000
+    local info=( $(command du -s $fs | awk 'END{ print $1 }') )
+    local pctused=( $(command echo "scale=4;$info/$slotsize*100" | bc -l) )
+    local totused=( $(command echo "scale=2;$info/1000000" | bc -l) )
+    local nbstars=$(( 20 * $info / $slotsize ))
+    local out="["
+
+    for ((j=0;j<20;j++)); do
+      if [ ${j} -lt ${nbstars} ]; then
+         out=$out"*"
+      else
+         out=$out"-"
+      fi
+    done
+
+    out=$pctused"% "$out"] ("$totused"G of 1000G used on "$fs")"
+    echo -e $out
+
+  done
+}
+
+function ext_ip() {
+  hostname -i;
+}
+
+# Get IP adress on ethernet.
+function my_ip() {
+  MY_IP=$(/sbin/ifconfig users | awk '/inet/ { print $2 } ' | sed -e s/addr://)
+  echo ${MY_IP:-"Not connected"}
+}
+
+# Get current host related info.
+function ii() {
+  echo -e "\n${BRed}Host information:$NC " ; uname -a
+  echo -e "\n${BRed}Current Date:$NC " ; echo -ne "Mine(EST)\t"; date; echo -ne "System\t\t"; zdump /etc/localtime | awk 'END{ print $2,$3,$4,$5,$6,$7 }'
+  echo -e "\n${BRed}IP Addresses:$NC " ; echo -ne "Public\t"; ext_ip; echo -ne "Private\t"; my_ip
+  echo -e "\n${BRed}Machine stats:$NC " ; uptime
+  echo -e "\n${BRed}Memory stats:$NC " ; free -ht
+  echo -e "\n${BRed}Diskspace:$NC " ; mydf / $HOME
+  echo -e "\n${BRed}Slot Disk Usage (Max 1000G):$NC "; mydu $HOME $HOME/private/deluge
+  echo -e "\n${BRed}My Running Processes:$NC" ; my_ps
+  echo
+}

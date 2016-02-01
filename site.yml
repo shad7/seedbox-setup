@@ -1,0 +1,14 @@
+---
+- name: local tasks
+  hosts: localhost
+  roles:
+    - local
+
+- name: setup new seedbox
+  hosts: newhost
+  roles:
+    - feral
+    - flexget
+    - seedbox
+    - torrents
+    - cron

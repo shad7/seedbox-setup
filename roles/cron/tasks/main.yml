@@ -1,0 +1,22 @@
+---
+- name: Set crontab variables
+
+- name: Create flexget cron job
+  cron:
+    name: "flexget job"
+    user: "{{ ansible_ssh_user }}"
+    minute: "*/10"
+    job: "{{ ansible_env.HOME }}/flexget/bin/flexget --cron execute"
+    state: present
+  tags:
+    - cron
+
+- name: Create seedbox cron job
+  cron:
+    name: "seedbox manager job"
+    user: "{{ ansible_ssh_user }}"
+    minute: "*/30"
+    job: "{{ ansible_env.HOME }}/seedbox/bin/seedmgr >> {{ ansible_env.HOME }}/.seedbox/cron-sync.log 2>&1"
+    state: present
+  tags:
+    - cron

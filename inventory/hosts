@@ -1,0 +1,6 @@
+[all]
+localhost     ansible_connection=local
+porphyrion    ansible_ssh_host=porphyrion.feralhosting.com
+
+[newhost]
+porphyrion    ansible_ssh_host=porphyrion.feralhosting.com

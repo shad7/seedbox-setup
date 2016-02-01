@@ -1,0 +1,33 @@
+---
+- name: Install flexget
+  pip:
+    name: flexget
+    state: latest
+    virtualenv: "~/flexget"
+    virtualenv_command: "~/.local/bin/virtualenv"
+  tags:
+    - flexget
+
+- name: Create .flexget runtime environment
+  file:
+    path: "~/.flexget"
+    mode: 0700
+    state: directory
+  tags:
+    - flexget
+
+- name: Configure flexget
+  template:
+    src: config.j2
+    dest: "~/.flexget/config.yml"
+    mode: 0644
+  tags:
+    - flexget
+
+- name: Sync flexget cache db
+  synchronize:
+    mode: push
+    src: "~/.flexget/db-config.sqlite"
+    dest: "~/.flexget/db-config.sqlite"
+  tags:
+    - flexget

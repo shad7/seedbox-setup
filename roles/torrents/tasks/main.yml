@@ -1,0 +1,31 @@
+---
+- name: Keep deluge from restarting
+  file:
+    path: ~/private/deluge/.prevent-restart
+    state: touch
+    mode: 0644
+  tags:
+    - torrents
+
+- name: Stop deluge processes
+  command: "pkill -u {{ ansible_ssh_user }} -f deluge"
+  tags:
+    - torrents
+
+- name: Sync torrents from oldhost to newhost
+  synchronize:
+    mode: push
+    src: "~/private/deluge/"
+    dest: "~/private/deluge/"
+    recursive: yes
+  tags:
+    - torrents
+
+- name: Set torrents to seed
+  synchronize:
+    mode: push
+    src: "~/.config/deluge/state/*.torrent"
+    dest: "~/private/deluge/watch"
+    recursive: yes
+  tags:
+    - torrents
