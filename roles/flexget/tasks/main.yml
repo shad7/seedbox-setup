@@ -10,7 +10,7 @@
 
 - name: Create .flexget runtime environment
   file:
-    path: "~/.flexget"
+    path: "~/.flexget/"
     mode: 0700
     state: directory
   tags:

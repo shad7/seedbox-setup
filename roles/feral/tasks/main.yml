@@ -1,5 +1,6 @@
 ---
 - name: Set up authorized_keys for the deploy user
+  no_log: True
   authorized_key: user="{{ ansible_ssh_user }}" key="{{ item }}"
   with_file:
     - "{{ secured_src_dir }}/public-key.pem"
@@ -25,8 +26,8 @@
 
 - name: Convert from apache to nginx
   file:
-    path: "~/.nginx"
-    mode: 0644
+    path: "~/.nginx/"
+    mode: 0755
     state: directory
   tags:
     - feral
