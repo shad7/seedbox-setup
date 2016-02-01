@@ -56,8 +56,8 @@
 
 - name: create torrent directories
   file:
-    path: "{{ deluge_datadir }}/{{ item }}"
-    mode: 0644
+    path: "{{ deluge_datadir }}/{{ item }}/"
+    mode: 0755
     recurse: yes
     state: directory
   with_items:
