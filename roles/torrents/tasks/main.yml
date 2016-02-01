@@ -27,5 +27,14 @@
     src: "~/.config/deluge/state/*.torrent"
     dest: "~/private/deluge/watch"
     recursive: yes
+  when: enabled
+  tags:
+    - torrents
+
+- name: Enable deluge to restart
+  file:
+    path: ~/private/deluge/.prevent-restart
+    state: absent
+  when: enabled
   tags:
     - torrents

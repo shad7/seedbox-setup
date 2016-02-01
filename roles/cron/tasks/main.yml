@@ -8,6 +8,7 @@
     minute: "*/10"
     job: "{{ ansible_env.HOME }}/flexget/bin/flexget --cron execute"
     state: present
+  when: enabled
   tags:
     - cron
 
@@ -18,5 +19,6 @@
     minute: "*/30"
     job: "{{ ansible_env.HOME }}/seedbox/bin/seedmgr >> {{ ansible_env.HOME }}/.seedbox/cron-sync.log 2>&1"
     state: present
+  when: enabled
   tags:
     - cron
