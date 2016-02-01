@@ -48,6 +48,14 @@
   tags:
     - seedbox
 
+- name: Configure SeedboxManager
+  template:
+    src: seedbox.j2
+    dest: "~/.seedbox/seedbox.conf"
+    mode: 0644
+  tags:
+    - seedbox
+
 - name: Sync seedbox manager cache db
   synchronize:
     mode: push
