@@ -1,6 +1,4 @@
 ---
-- name: Set crontab variables
-
 - name: Create flexget cron job
   cron:
     name: "flexget job"
