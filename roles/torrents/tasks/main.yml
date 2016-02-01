@@ -9,6 +9,7 @@
 
 - name: Stop deluge processes
   command: "pkill -u {{ ansible_ssh_user }} -f deluge"
+  ignore_errors: true
   tags:
     - torrents
 
