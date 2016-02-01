@@ -20,7 +20,6 @@
     src: robots.txt
     dest: "~/www/{{ ansible_ssh_user }}.{{ ansible_fqdn }}/public_html/robots.txt"
     mode: 0644
-    state: file
   tags:
     - feral
 
@@ -37,7 +36,6 @@
     src: "{{ item }}"
     dest: "~/.{{ item }}"
     mode: 0644
-    state: file
   with_items:
     - bash_aliases
     - screenrc
@@ -50,7 +48,6 @@
     src: "{{ item }}"
     dest: "~/.{{ item }}"
     mode: 0755
-    state: file
   with_items:
     - bashrc
     - profile

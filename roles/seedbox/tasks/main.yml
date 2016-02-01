@@ -33,7 +33,6 @@
     src: "{{ secured_src_dir }}/{{ item }}"
     dest: "~/.sshkeys/{{ item }}"
     mode: 0400
-    state: file
   with_items:
     - diskstation-rsync-key
   tags:
@@ -44,7 +43,6 @@
     src: "{{ secured_src_dir }}/{{ item }}"
     dest: "~/.sshkeys/{{ item }}"
     mode: 0644
-    state: file
   with_items:
     - diskstation-rsync-key.pub
   tags:
