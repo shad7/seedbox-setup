@@ -8,8 +8,8 @@
 
 - name: Create public_html directory
   file:
-    path: "~/www/{{ ansible_ssh_user }}.{{ ansible_fqdn }}/public_html"
-    mode: 0644
+    path: "~/www/{{ ansible_ssh_user }}.{{ ansible_fqdn }}/public_html/"
+    mode: 0755
     recurse: yes
     state: directory
   tags:
@@ -19,7 +19,7 @@
   copy:
     src: robots.txt
     dest: "~/www/{{ ansible_ssh_user }}.{{ ansible_fqdn }}/public_html/robots.txt"
-    mode: 0644
+    mode: 0600
   tags:
     - feral
 
