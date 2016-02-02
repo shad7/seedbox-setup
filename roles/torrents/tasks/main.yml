@@ -19,6 +19,7 @@
     src: "~/private/deluge/"
     dest: "~/private/deluge/"
     recursive: yes
+    archive: no
   tags:
     - torrents
 
