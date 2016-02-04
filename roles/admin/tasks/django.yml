@@ -9,7 +9,7 @@
 
 - name: Install Admin components
   pip:
-    name: {{ item }}
+    name: "{{ item }}"
     state: latest
     virtualenv: "~/webapps/{{ ansible_hostname }}"
     virtualenv_command: "~/.local/bin/virtualenv"
