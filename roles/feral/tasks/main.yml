@@ -9,7 +9,7 @@
 
 - name: Create public_html directory
   file:
-    path: "~/www/{{ ansible_ssh_user }}.{{ ansible_fqdn }}/public_html/"
+    path: "~/www/{{ ansible_ssh_user }}.{{ ansible_fqdn }}/public_html/webapps/"
     mode: 0755
     recurse: yes
     state: directory
