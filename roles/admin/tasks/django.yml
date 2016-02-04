@@ -22,8 +22,8 @@
     - admin
 
 - name: Copy gunicorn_start
-  copy:
-    src: gunicorn_start
+  template:
+    src: gunicorn_start.j2
     dest: "~/webapps/{{ ansible_hostname }}/bin/gunicorn_start"
     mode: 0700
   tags:

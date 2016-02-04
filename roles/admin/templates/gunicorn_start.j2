@@ -1,6 +1,6 @@
 #!/bin/bash
 
-SITE_ENV=~/webapps/chaos
+SITE_ENV=~/webapps/{{ ansible_hostname }}
 NAME="sync"                                  # Name of the application
 DJANGODIR=$SITE_ENV/seedbox             # Django project directory
 DJANGO_SETTINGS_MODULE=mgr.settings             # which settings file should Django use
