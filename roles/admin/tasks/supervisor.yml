@@ -34,3 +34,9 @@
     mode: 0644
   tags:
     - admin
+
+- name: Start Supervisor
+  command: "~/.local/bin/supervisord"
+  when: enabled
+  tags:
+    - admin
