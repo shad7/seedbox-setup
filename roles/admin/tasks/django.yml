@@ -24,7 +24,7 @@
 - name: Copy gunicorn_start
   copy:
     src: gunicorn_start
-    dest: "~/webapps/{{ ansible_hostname }}/gunicorn_start"
+    dest: "~/webapps/{{ ansible_hostname }}/bin/gunicorn_start"
     mode: 0700
   tags:
     - admin
