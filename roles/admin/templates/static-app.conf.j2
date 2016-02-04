@@ -1,0 +1,3 @@
+location /static/ {
+    alias {{ ansible_env.HOME }}/www/$host/public_html/webapps/static/;
+}

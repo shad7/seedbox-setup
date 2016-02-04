@@ -1,0 +1,16 @@
+---
+- name: Copy nginx static configuration
+  template:
+    src: static-app.conf.j2
+    dest: "~/.nginx/conf.d/000-default-server.d/static-app.conf"
+    mode: 0644
+  tags:
+    - admin
+
+- name: Copy nginx seedbox admin configuration
+  template:
+    src: seedbox-sync-mgr-app.conf.j2
+    dest: "~/.nginx/conf.d/000-default-server.d/seedbox-sync-mgr-app.conf"
+    mode: 0644
+  tags:
+    - admin

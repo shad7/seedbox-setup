@@ -1,0 +1,36 @@
+---
+- name: Install Supervisor
+  pip:
+    name: supervisor
+    state: latest
+    extra_args: "--user"
+  tags:
+    - admin
+
+- name: create Supervisor directories
+  file:
+    path: "~/.local/{{ item }}/"
+    mode: 0700
+    recurse: yes
+    state: directory
+  with_items:
+    - logs
+    - "etc/supervisor/conf.d"
+  tags:
+    - admin
+
+- name: Configure Supervisor
+  template:
+    src: supervisord.conf.j2
+    dest: "~/.local/etc/supervisord.conf"
+    mode: 0644
+  tags:
+    - admin
+
+- name: Configure Django admin in Supervisor
+  template:
+    src: mgr.conf.j2
+    dest: "~/.local/etc/supervisor/conf.d/mgr.conf"
+    mode: 0644
+  tags:
+    - admin

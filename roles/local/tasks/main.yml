@@ -90,3 +90,26 @@
     mode: 0644
     state: file
   when: key_exists.changed
+
+- name: check if django secret key exists
+  file:
+    path: "{{ secured_src_dir }}/secret_key.txt"
+    mode: 0600
+    state: file
+  register: key_exists
+  ignore_errors: true
+  changed_when: key_exists|failed
+
+- name: Decrypt django secret key
+  no_log: True
+  command: openssl aes-256-cbc -salt -a -d -in "{{ secured_src_dir }}/encrypted-secret_key.txt"
+           -out "{{ secured_src_dir }}/secret_key.txt" -k "{{ encryption_key_password }}"
+           creates="{{ secured_src_dir }}/secret_key.txt"
+  when: key_exists.changed
+
+- name: Set file permissions on django secret key
+  file:
+    path: "{{ secured_src_dir }}/secret_key.txt"
+    mode: 0600
+    state: file
+  when: key_exists.changed

@@ -1,0 +1,20 @@
+[inet_http_server]
+port={{ ansible_fqdn }}:9001
+username={{ ansible_hostname }}
+password={{ supervisord_password }}
+
+[supervisord]
+logfile={{ ansible_env.HOME }}/.local/logs/supervisord.log
+pidfile=%(here)s/supervisord.pid
+#loglevel=trace
+
+[supervisorctl]
+serverurl=http://{{ ansible_fqdn }}:9001
+username={{ ansible_hostname }}
+password={{ supervisorctl_password }}
+
+[include]
+files={{ ansible_env.HOME }}/.local/etc/supervisor/conf.d/*.conf
+
+[rpcinterface:supervisor]
+supervisor.rpcinterface_factory = supervisor.rpcinterface:make_main_rpcinterface

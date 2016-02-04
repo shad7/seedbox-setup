@@ -1,0 +1,100 @@
+---
+- name: Create webapps directory
+  file:
+    path: "~/webapps"
+    mode: 0755
+    state: directory
+  tags:
+    - admin
+
+- name: Install Admin components
+  pip:
+    name: {{ item }}
+    state: latest
+    virtualenv: "~/webapps/{{ ansible_hostname }}"
+    virtualenv_command: "~/.local/bin/virtualenv"
+  with_items:
+    - Django
+    - gunicorn
+    - setproctitle
+    - pytz
+  tags:
+    - admin
+
+- name: Copy gunicorn_start
+  copy:
+    src: gunicorn_start
+    dest: "~/webapps/{{ ansible_hostname }}/gunicorn_start"
+    mode: 0700
+  tags:
+    - admin
+
+- name: Create webapps directories
+  file:
+    path: "~/webapps/{{ ansible_hostname }}/{{ item }}"
+    mode: 0755
+    state: directory
+  with_items:
+    - seedbox
+    - logs
+    - etc
+  tags:
+    - admin
+
+- name: Configure gunicorn
+  template:
+    src: gunicorn_conf.j2
+    dest: "~/webapps/{{ ansible_hostname }}/seedbox/gunicorn_conf.py"
+    mode: 0600
+  tags:
+    - admin
+
+- name: Copy Django manage
+  copy:
+    src: manage.py
+    dest: "~/webapps/{{ ansible_hostname }}/seedbox/manage.py"
+    mode: 0750
+  tags:
+    - admin
+
+- name: Copy Seedbox Admin directories
+  copy:
+    src: "{{ item }}"
+    dest: "~/webapps/{{ ansible_hostname }}/seedbox/"
+    directory_mode: 0700
+    mode: 0600
+  with_items:
+    - mgr
+    - sync
+    - templates
+  tags:
+    - admin
+
+- name: Configure Django admin
+  template:
+    src: settings.py.j2
+    dest: "~/webapps/{{ ansible_hostname }}/seedbox/mgr/settings.py"
+    mode: 0600
+  tags:
+    - admin
+
+- name: Create symlink to Django admin static content
+  file:
+    src: "~/webapps/{{ ansible_hostname }}/lib/python2.7/site-packages/django/contrib/admin/static/"
+    dest: "~/webapps/{{ ansible_hostname }}/seedbox/static"
+    state: link
+  tags:
+    - admin
+
+- name: Copy Django admin static content to www
+  command: "cp -R ~/webapps/{{ ansible_hostname }}/lib/python2.7/site-packages/django/contrib/admin/static/admin ~/www/{{ ansible_ssh_user }}.{{ ansible_fqdn }}/public_html/webapps/static/"
+  tags:
+    - admin
+
+- name: Copy secret key file
+  copy:
+    src: "{{ secured_src_dir }}/secret_key.txt"
+    dest: "~/webapps/{{ ansible_hostname }}/etc/secret_key.txt"
+    mode: 0600
+  tags:
+    - admin

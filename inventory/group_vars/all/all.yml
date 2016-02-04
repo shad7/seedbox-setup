@@ -3,5 +3,7 @@ ansible_ssh_user: shad7
 secured_src_dir: secured
 ansible_ssh_private_key_file: "{{secured_src_dir}}/private-key.pem"
 
+email_address: kenny.shad7@gmail.com
+
 deluge_datadir: "{{ ansible_env.HOME }}/private/deluge/data"
 deluge_port: 52290

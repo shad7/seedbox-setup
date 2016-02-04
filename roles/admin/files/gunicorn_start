@@ -1,0 +1,23 @@
+#!/bin/bash
+
+SITE_ENV=~/webapps/chaos
+NAME="sync"                                  # Name of the application
+DJANGODIR=$SITE_ENV/seedbox             # Django project directory
+DJANGO_SETTINGS_MODULE=mgr.settings             # which settings file should Django use
+DJANGO_WSGI_MODULE=mgr.wsgi                     # WSGI module name
+
+echo "Starting $NAME"
+
+# Activate the virtual environment
+cd $DJANGODIR
+source ../bin/activate
+export DJANGO_SETTINGS_MODULE=$DJANGO_SETTINGS_MODULE
+export PYTHONPATH=$DJANGODIR:$PYTHONPATH
+
+# Start your Django Unicorn
+# Programs meant to be run under supervisor should not daemonize themselves (do not use --daemon)
+exec ../bin/gunicorn ${DJANGO_WSGI_MODULE}:application \
+  -c $DJANGODIR/gunicorn_conf.py \
+  --name $NAME
+
+
