@@ -14,3 +14,9 @@
     mode: 0644
   tags:
     - admin
+
+- name: Restart nginx
+  command: "/usr/sbin/nginx -s reload -c ~/.nginx/nginx.conf"
+  ignore_errors: true
+  tags:
+    - admin
