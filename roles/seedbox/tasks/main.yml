@@ -8,6 +8,14 @@
   tags:
     - seedbox
 
+- name: Create symlink to seedmgr binary
+  file:
+    src: "~/seedbox/bin/seedmgr"
+    dest: "~/.local/bin/seedmgr"
+    state: link
+  tags:
+    - seedbox
+
 - name: Create .seedbox runtime environment
   file:
     path: "~/.seedbox/{{ item }}/"

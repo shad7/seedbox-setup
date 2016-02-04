@@ -8,6 +8,14 @@
   tags:
     - flexget
 
+- name: Create symlink to flexget binary
+  file:
+    src: "~/flexget/bin/flexget"
+    dest: "~/.local/bin/flexget"
+    state: link
+  tags:
+    - flexget
+
 - name: Create .flexget runtime environment
   file:
     path: "~/.flexget/"
