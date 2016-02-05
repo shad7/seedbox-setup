@@ -70,6 +70,35 @@
   tags:
     - feral
 
+# get deluge config file (~/.config/deluge/core.conf) and
+# read the 'daemon_port' and
+# save as 'deluge_port'
+- name: Read the Deluge daemon port
+  command: sed -rn 's/(.*)"daemon_port": (.*),/\2/p' ~/.config/deluge/core.conf
+  register: port_result
+  tags:
+    - feral
+
+- debug: var=port_result
+
+# get deluge auth file (~/.config/deluge/auth) and
+# read the password for username 'ansible_ssh_user' and
+# save as 'deluge_password'
+- name: Read the Deluge password
+  command: sed -rn "s/$(whoami):(.*):(.*)/\1/p" ~/.config/deluge/auth
+  register: pass_result
+
+- debug: var=pass_result
+
+- name: Configure Deluge
+  template:
+    src: core.conf.j2
+    dest: "~/.config/deluge/core.conf"
+    mode: 0600
+  when: enabled
+  tags:
+    - feral
+
 - name: Install virtualenv module
   pip:
     name: virtualenv
@@ -77,11 +106,3 @@
     extra_args: "--user"
   tags:
     - feral
-
-# get deluge config file (~/.config/deluge/core.conf) and
-# read the 'daemon_port' and
-# save as 'deluge_port'
-
-# get deluge auth file (~/.config/deluge/auth) and
-# read the password for username 'ansible_ssh_user' and
-# save as 'deluge_password'

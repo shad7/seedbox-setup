@@ -23,6 +23,14 @@
   tags:
     - torrents
 
+- name: Sync torrent labels
+  synchronize:
+    mode: push
+    src: "~/.config/deluge/label.conf"
+    dest: "~/.config/deluge/label.conf"
+  tags:
+    - torrents
+
 - name: Set torrents to seed
   synchronize:
     mode: push
