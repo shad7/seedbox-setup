@@ -83,7 +83,7 @@
 - debug: var=port_result
 
 - set_fact:
-  my_deluge_port: "{{ port_result.stdout.strip() }}"
+    my_deluge_port: "{{ port_result.stdout.strip() }}"
 
 - debug: var=my_deluge_port
 
@@ -100,7 +100,7 @@
 - debug: var=pass_result
 
 - set_fact:
-  my_deluge_password: "{{ pass_result.stdout.strip() }}"
+    my_deluge_password: "{{ pass_result.stdout.strip() }}"
 
 - debug: var=my_deluge_password
 
