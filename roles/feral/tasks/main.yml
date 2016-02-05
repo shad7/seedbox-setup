@@ -85,7 +85,7 @@
 # read the password for username 'ansible_ssh_user' and
 # save as 'deluge_password'
 - name: Read the Deluge password
-  command: sed -rn "s/$(whoami):(.*):(.*)/\1/p" ~/.config/deluge/auth
+  command: sed -rn "s/{{ ansible_ssh_user }}:(.*):(.*)/\1/p" ~/.config/deluge/auth
   register: pass_result
 
 - debug: var=pass_result
