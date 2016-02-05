@@ -76,19 +76,34 @@
 - name: Read the Deluge daemon port
   command: 'sed -rn ''s/(.*)"daemon_port": (.*),/\2/p'' ~/.config/deluge/core.conf'
   register: port_result
+  changed_when: port_result.stdout.strip() != ""
   tags:
     - feral
 
 - debug: var=port_result
+
+- set_fact:
+  my_deluge_port: "{{ port_result.stdout.strip() }}"
+
+- debug: var=my_deluge_port
 
 # get deluge auth file (~/.config/deluge/auth) and
 # read the password for username 'ansible_ssh_user' and
 # save as 'deluge_password'
 - name: Read the Deluge password
   command: sed -rn "s/{{ ansible_ssh_user }}:(.*):(.*)/\1/p" ~/.config/deluge/auth
+  changed_when: pass_result.stdout.strip() != ""
   register: pass_result
+  tags:
+    - feral
 
 - debug: var=pass_result
+
+- set_fact:
+  my_deluge_password: "{{ pass_result.stdout.strip() }}"
+
+- debug: var=my_deluge_password
+
 
 - name: Configure Deluge
   template:
