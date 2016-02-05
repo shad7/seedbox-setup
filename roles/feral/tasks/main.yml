@@ -74,7 +74,7 @@
 # read the 'daemon_port' and
 # save as 'deluge_port'
 - name: Read the Deluge daemon port
-  command: sed -rn 's/(.*)"daemon_port": (.*),/\2/p' ~/.config/deluge/core.conf
+  command: 'sed -rn ''s/(.*)"daemon_port": (.*),/\2/p'' ~/.config/deluge/core.conf'
   register: port_result
   tags:
     - feral
