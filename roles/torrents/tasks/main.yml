@@ -34,8 +34,8 @@
 - name: Set torrents to seed
   synchronize:
     mode: push
-    src: "~/.config/deluge/state/*.torrent"
-    dest: "~/private/deluge/watch"
+    src: "~/.config/deluge/state/"
+    dest: "~/private/deluge/watch/"
     recursive: yes
   when: enabled
   tags:
