@@ -5,6 +5,7 @@
     state: latest
     virtualenv: "~/flexget"
     virtualenv_command: "~/.local/bin/virtualenv"
+    virtualenv_site_packages: yes
   tags:
     - flexget
 
